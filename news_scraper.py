@@ -3,10 +3,9 @@ import json
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from summarizer import summarize  # ✅ Updated summarize function
 
 load_dotenv()
-
-api_key = os.getenv("OPENAI_API_KEY")
 
 rss_feeds = {
     "Tech & Startups": "https://www.theverge.com/rss/index.xml",
@@ -17,25 +16,40 @@ rss_feeds = {
 }
 
 news_data = {}
+
 for sector, url in rss_feeds.items():
     print(f"\n📡 Fetching: {sector}")
     feed = feedparser.parse(url)
     print(f" - Found {len(feed.entries)} articles")
-    
+
     articles = []
+
     for entry in feed.entries[:5]:
-        print(f"   📰 {entry.title}")
+        title = entry.title
+        link = entry.link
+        description = entry.get("summary", "")
+        published = entry.published if "published" in entry else "N/A"
+
+        print(f"   📰 {title}")
+        summary = summarize(title, description)
+
+        if not summary:
+            summary = "⚠️ Summary unavailable."
+
         articles.append({
-            "title": entry.title,
-            "link": entry.link,
-            "published": entry.published if "published" in entry else "N/A"
+            "title": title,
+            "link": link,
+            "published": published,
+            "summary": summary
         })
-    
+
     news_data[sector] = articles
 
+# Save the news to a timestamped JSON file
 timestamp = datetime.now().strftime("%Y-%m-%d")
 filename = f"daily_news_{timestamp}.json"
+
 with open(filename, "w", encoding="utf-8") as f:
-    json.dump(news_data, f, indent=4)
+    json.dump(news_data, f, indent=4, ensure_ascii=False)
 
 print(f"\n✅ News saved to {filename}")

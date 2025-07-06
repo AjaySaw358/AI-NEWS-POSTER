@@ -1,16 +1,26 @@
-import openai
 import os
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def summarize(text, model="gpt-4"):
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": "Summarize the following news:"},
-            {"role": "user", "content": text}
-        ]
-    )
-    return response.choices[0].message.content.strip()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def summarize(title, description, model="gpt-4"):
+    """Summarize a news article given title and description."""
+    text = f"Title: {title}\nDescription: {description}"
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "Summarize this news in 2-3 sentences in a concise, engaging way."},
+                {"role": "user", "content": text}
+            ],
+            max_tokens=150,
+            temperature=0.7,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"[Error] Summarization failed: {e}")
+        return None
