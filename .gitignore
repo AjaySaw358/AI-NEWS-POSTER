@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Virtual Environment
+venv/
+
+# Data (optional)
+daily_news_*.json
