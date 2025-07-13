@@ -7,7 +7,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def summarize(title, description, model="gpt-4"):
-    """Summarize a news article given title and description."""
+    """Summarize a news article using OpenAI GPT."""
     text = f"Title: {title}\nDescription: {description}"
 
     try:
@@ -22,5 +22,5 @@ def summarize(title, description, model="gpt-4"):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        print(f"[Error] Summarization failed: {e}")
+        print(f"❌ Summarization error: {e}")
         return None
